@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "python-fragment"
+version = "0.1.0"
+description = ""
+authors = ["ren3104 <2ren3104@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/ren3104/python-fragment"
+repository = "https://github.com/ren3104/python-fragment"
+keywords = [
+    "asyncio",
+    "fragment",
+    "ton",
+    "telegram"
+]
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Typing :: Typed"
+]
+packages = [
+    { include = "fragment", from = "." }
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/ren3104/python-fragment/issues"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
