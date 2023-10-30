@@ -1,13 +1,14 @@
 [tool.poetry]
 name = "python-fragment"
 version = "0.1.0"
-description = ""
+description = "Reverse engineered Fragment API that mimics the official webclient"
 authors = ["ren3104 <2ren3104@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/ren3104/python-fragment"
 repository = "https://github.com/ren3104/python-fragment"
 keywords = [
+    "async",
     "asyncio",
     "fragment",
     "ton",
@@ -24,6 +25,11 @@ packages = [
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/ren3104/python-fragment/issues"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+aiohttp = "^3.8.6"
+selectolax = {extras = ["cython"], version = "^0.3.17"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
