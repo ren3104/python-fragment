@@ -33,43 +33,39 @@ class FragmentAPI:
 
         self.usernames = Usernames(self)
     
-    def _prepare_request(
-        self,
-        method: str,
-        url: Optional[str] = None,
-        params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
-        if url is None:
-            url = self._base_url + "/api"
-            if params is None:
-                params = {}
-            params["hash"] = self._api_hash
-            
-        return {
-            "method": method,
-            "url": url,
-            "params": params,
-            "data": data
-        }
-    
     async def _request(
         self,
         parse_method: Callable[[str], T],
         method: str,
         url: Optional[str] = None,
         params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None
+        data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, Any]] = None
     ) -> T:
+        if url is None:
+            url = self._base_url + "/api"
+            if params is None:
+                params = {}
+            params["hash"] = self._api_hash
+        
         async with self._session.request(
-            **self._prepare_request(method, url, params, data)
+            method=method,
+            url=url,
+            params=params,
+            data=data,
+            headers=headers
         ) as response:
             if not response.ok:
                 raise FragmentHTTPError(response)
 
             try:
-                data: JsonObject = await response.json()
-                text: str = data.get("html", "")
+                json_data: JsonObject = await response.json()
+                text = ""
+                for key in ["html", "h"]:
+                    try:
+                        text: str = json_data[key]
+                    except KeyError:
+                        pass
             except ContentTypeError:
                 text = await response.text()
             
