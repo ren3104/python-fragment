@@ -33,6 +33,13 @@ async def main():
         usernames = await api.usernames.search()
         for username in usernames[:5]:
             print(username)
+            # {
+            #     'username': 'lynx',
+            #     'status': 'auction',
+            #     'value': 6619.0,
+            #     'datetime': '2023-10-31T06:11:25+00:00',
+            #     'is_resale': False
+            # }
 
 
 asyncio.run(main())
