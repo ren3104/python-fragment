@@ -39,8 +39,15 @@ class BidHistoryElement(TypedDict):
     from_: str
 
 
+class LatestOffersElement(TypedDict):
+    ton_offer: float
+    date: str
+    offered_by: str
+
+
 class FullUsername(TypedDict):
     username: str
     status: str
     ownership_history: List[OwnershipHistoryElement]
     bid_history: List[BidHistoryElement]
+    latest_offers: List[LatestOffersElement]

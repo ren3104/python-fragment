@@ -5,7 +5,7 @@ from typing import List
 
 from .helper import to_float, parse_status
 from .errors import ParserError
-from .type_hints import Username, OwnershipHistoryElement, BidHistoryElement, FullUsername
+from .type_hints import Username, OwnershipHistoryElement, BidHistoryElement, LatestOffersElement, FullUsername
 
 
 def parse_api_hash(html: str) -> str:
@@ -60,6 +60,7 @@ def parse_username_info(html: str) -> FullUsername:
 
     bid_history_elems = []
     ownership_history_elems = []
+    latest_offers_elems = []
 
     tm_sections = parser.css("main > section.tm-section.clearfix")
     for tm_section in tm_sections:
@@ -86,10 +87,20 @@ def parse_username_info(html: str) -> FullUsername:
                     date=table_cells[1].css_first(".wide-only").text(strip=True),
                     buyer=table_cells[2].text(strip=True)
                 ))
+        elif header_text == "latest offers":
+            table_elems = tm_section.css("table > tbody tr")
+            for table_elem in table_elems:
+                table_cells = table_elem.css(".table-cell")
+                latest_offers_elems.append(LatestOffersElement(
+                    ton_offer=to_float(table_cells[0].text(strip=True)),
+                    date=table_cells[1].css_first(".wide-only").text(strip=True),
+                    offered_by=table_cells[2].text(strip=True)
+                ))
 
     return FullUsername(
         username=parser.css_first(".tm-section-auction-info :first-child > dd").text(strip=True)[1:],
         status=parse_status(parser.css_first(".tm-section-header-status").text()),
         ownership_history=ownership_history_elems,
-        bid_history=bid_history_elems
+        bid_history=bid_history_elems,
+        latest_offers=latest_offers_elems
     )
