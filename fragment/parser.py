@@ -76,7 +76,7 @@ def parse_username_info(html: str) -> FullUsername:
                 bid_history_elems.append(BidHistoryElement(
                     ton_price=to_float(table_cells[0].text(strip=True)),
                     date=table_cells[1].css_first(".wide-only").text(strip=True),
-                    from_=table_cells[2].text(strip=True)
+                    from_=table_cells[2].css_first(".tm-wallet").attributes["href"].removeprefix("https://tonviewer.com/")
                 ))
         elif header_text == "ownership history":
             table_elems = tm_section.css("table > tbody tr")
@@ -85,7 +85,7 @@ def parse_username_info(html: str) -> FullUsername:
                 ownership_history_elems.append(OwnershipHistoryElement(
                     ton_sell_price=to_float(table_cells[0].text(strip=True)),
                     date=table_cells[1].css_first(".wide-only").text(strip=True),
-                    buyer=table_cells[2].text(strip=True)
+                    buyer=table_cells[2].css_first(".tm-wallet").attributes["href"].removeprefix("https://tonviewer.com/")
                 ))
         elif header_text == "latest offers":
             table_elems = tm_section.css("table > tbody tr")
@@ -94,7 +94,7 @@ def parse_username_info(html: str) -> FullUsername:
                 latest_offers_elems.append(LatestOffersElement(
                     ton_offer=to_float(table_cells[0].text(strip=True)),
                     date=table_cells[1].css_first(".wide-only").text(strip=True),
-                    offered_by=table_cells[2].text(strip=True)
+                    offered_by=table_cells[2].css_first(".tm-wallet").attributes["href"].removeprefix("https://tonviewer.com/")
                 ))
 
     return FullUsername(
