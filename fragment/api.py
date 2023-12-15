@@ -4,7 +4,7 @@ from types import TracebackType
 from typing import Any, Dict, Optional, Callable, Type
 
 from .resources import *
-from .errors import FragmentHTTPError
+from .errors import FragmentHTTPError, FragmentError
 from .parser import parse_api_hash
 from .type_hints import T, JsonObject
 
@@ -60,6 +60,13 @@ class FragmentAPI:
 
             try:
                 json_data: JsonObject = await response.json()
+                
+                if "error" in json_data:
+                    raise FragmentError(
+                        error_type=json_data["error"],
+                        error_details=json_data["error_details"]
+                    )
+
                 text = ""
                 for key in ["html", "h"]:
                     try:

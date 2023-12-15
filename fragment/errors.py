@@ -5,9 +5,9 @@ class FragmentHTTPError(Exception):
     __slots__ = frozenset(["response"])
 
     def __init__(
-            self,
-            response: ClientResponse
-        ) -> None:
+        self,
+        response: ClientResponse
+    ) -> None:
         self.response = response
     
     def __str__(self) -> str:
@@ -16,6 +16,15 @@ class FragmentHTTPError(Exception):
             self.response.status,
             self.response.url
         )
+    
+
+class FragmentError(Exception):
+    def __init__(
+        self,
+        error_type: str,
+        error_details: str
+    ) -> None:
+        super().__init__(f"{error_type}: {error_details}")
 
 
 class ParserError(Exception):
