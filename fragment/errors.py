@@ -1,12 +1,15 @@
-from aiohttp import ClientResponse
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from aiohttp import ClientResponse
 
 
 class FragmentHTTPError(Exception):
-    __slots__ = frozenset(["response"])
+    __slots__ = ("response")
 
     def __init__(
         self,
-        response: ClientResponse
+        response: "ClientResponse"
     ) -> None:
         self.response = response
     
@@ -16,19 +19,10 @@ class FragmentHTTPError(Exception):
             self.response.status,
             self.response.url
         )
-    
-
-class FragmentError(Exception):
-    def __init__(
-        self,
-        error_type: str,
-        error_details: str
-    ) -> None:
-        super().__init__(f"{error_type}: {error_details}")
 
 
 class ParserError(Exception):
-    __slots__ = frozenset(["html"])
+    __slots__ = ("html")
 
     def __init__(self, html: str) -> None:
         self.html = html

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-fragment"
-version = "0.2.3"
+version = "0.3.0"
 description = "Reverse engineered Fragment API that mimics the official webclient"
 authors = ["ren3104 <2ren3104@gmail.com>"]
 license = "MIT"

@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 
 class BaseResource:
-    __slots__ = frozenset(["_api"])
+    __slots__ = ("_api")
 
     def __init__(self, api: "FragmentAPI") -> None:
         self._api = api

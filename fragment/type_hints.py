@@ -1,27 +1,35 @@
-from typing import Any, Optional, Dict, List, TypedDict, Literal, TypeVar
+from typing import Optional, List, TypedDict, Literal, TypeVar
 
 
 T = TypeVar("T")
-JsonObject = Dict[str, Any]
 
 FragmentFilter = Literal[
-    "",
+    "", # default value
     "auction",
     "sold",
     "sale"
 ]
 FragmentSort = Literal[
-    "",
+    "", # default value
     "price_desc",
     "price_asc",
     "listed",
     "ending"
 ]
 
+UsernameStatus = Literal[
+    "available",
+    "unavailable",
+    "auction",
+    "sale",
+    "sold",
+    "taken"
+]
+
 
 class Username(TypedDict):
     username: str
-    status: str # available unavailable auction sale sold taken
+    status: UsernameStatus
     value: Optional[float]
     datetime: Optional[str]
     is_resale: Optional[bool]
@@ -47,7 +55,7 @@ class LatestOffersElement(TypedDict):
 
 class FullUsername(TypedDict):
     username: str
-    status: str
+    status: UsernameStatus
     ownership_history: List[OwnershipHistoryElement]
     bid_history: List[BidHistoryElement]
     latest_offers: List[LatestOffersElement]

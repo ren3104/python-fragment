@@ -1,6 +1,5 @@
 from selectolax.lexbor import LexborHTMLParser
 
-import re
 from typing import List
 
 from .helper import to_float, parse_status
@@ -8,25 +7,10 @@ from .errors import ParserError
 from .type_hints import Username, OwnershipHistoryElement, BidHistoryElement, LatestOffersElement, FullUsername
 
 
-def parse_api_hash(html: str) -> str:
-    parser = LexborHTMLParser(html)
-    for script_tag in parser.body.css("script"):
-        try:
-            text = script_tag.text()
-            if text.startswith("ajInit"):
-                matches = re.findall('api\?hash=(.*)",', text)
-                if len(matches) > 0:
-                    return matches[0]
-                else:
-                    raise Exception("Api hash not found!")
-        except Exception as e:
-            raise ParserError(script_tag.html) from e
-
-
 def parse_auctions(html: str) -> List[Username]:
     parser = LexborHTMLParser(html)
     result = []
-    for element in parser.css(".tm-row-selectable"):
+    for element in parser.body.css(".js-search-results .tm-row-selectable"):
         try:
             is_resale = None
             username = element.css_first(".table-cell-value.tm-value").text()
