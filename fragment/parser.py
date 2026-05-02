@@ -1,13 +1,13 @@
-from selectolax.lexbor import LexborHTMLParser
+from __future__ import annotations
 
-from typing import List
+from selectolax.lexbor import LexborHTMLParser
 
 from .helper import to_float, parse_status
 from .errors import ParserError
 from .type_hints import Username, OwnershipHistoryElement, BidHistoryElement, LatestOffersElement, FullUsername
 
 
-def parse_auctions(html: str) -> List[Username]:
+def parse_auctions(html: str) -> list[Username]:
     parser = LexborHTMLParser(html)
     result = []
     for element in parser.body.css(".js-search-results .tm-row-selectable"):
@@ -21,12 +21,12 @@ def parse_auctions(html: str) -> List[Username]:
                 is_resale = element.css_matches(".table-cell-status-thin")
             else:
                 status = parse_status(raw_status.text())
-            
+
             if status in ["available", "unavailable", "taken"]:
                 dt = None
             else:
                 dt = element.css_first(".wide-last-col time").attributes.get("datetime")
-            
+
             result.append(Username(
                 username=username[1:],
                 status=status,

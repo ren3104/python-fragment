@@ -1,0 +1,46 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ..type_hints import (
+        FragmentFilter,
+        FragmentSort,
+        Username,
+        FullUsername
+    )
+
+from ..parser import parse_auctions, parse_username_info
+
+
+class AsyncMethods:
+    async def search_usernames(
+        self,
+        query: str = "",
+        filter: "FragmentFilter" = "",
+        sort: "FragmentSort" = "",
+        **request_kwargs: Any
+    ) -> list[Username]:
+        raw_data = await self._request(
+            path="/",
+            params={
+                "query": query,
+                "filter": filter,
+                "sort": sort
+            },
+            **request_kwargs
+        )
+        return parse_auctions(raw_data)
+
+    async def username_info(
+        self,
+        username: str,
+        **request_kwargs: Any
+    ) -> FullUsername:
+        raw_data = await self._request(
+            path="/username/" + username,
+            **request_kwargs
+        )
+        return parse_username_info(raw_data)

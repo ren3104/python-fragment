@@ -1,36 +1,62 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
 name = "python-fragment"
-version = "0.3.0"
+dynamic = ["version"]
 description = "Reverse engineered Fragment API that mimics the official webclient"
-authors = ["ren3104 <2ren3104@gmail.com>"]
-license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/ren3104/python-fragment"
-repository = "https://github.com/ren3104/python-fragment"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [
+    { name = "ren3104", email = "2ren3104@gmail.com" },
+]
 keywords = [
-    "async",
-    "asyncio",
     "fragment",
     "ton",
     "telegram"
 ]
 classifiers = [
-    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Typing :: Typed"
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
-packages = [
-    { include = "fragment", from = "." }
+dependencies = [
+  "aiohttp>=3.3.0",
+  "requests",
+  "selectolax[cython]>=0.3.17"
 ]
 
-[tool.poetry.urls]
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "unasyncd==0.10.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/ren3104/python-fragment"
+Repository = "https://github.com/ren3104/python-fragment"
 "Bug Tracker" = "https://github.com/ren3104/python-fragment/issues"
 
-[tool.poetry.dependencies]
-python = "^3.8"
-aiohttp = "^3.8.6"
-selectolax = {extras = ["cython"], version = "^0.3.17"}
+[tool.hatch.version]
+path = "fragment/__version__.py"
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.hatch.build.targets.wheel]
+packages = ["fragment"]
+
+[tool.hatch.envs.default]
+features = ["dev"]
+post-install-commands = ["pre-commit install"]
+
+[tool.unasyncd]
+files = { "fragment/_async/methods.py" = "fragment/_sync/methods.py" }
+add_replacements = { "AsyncMethods" = "SyncMethods" }
+add_editors_note = true

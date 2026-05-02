@@ -1,4 +1,6 @@
-from typing import Optional, List, TypedDict, Literal, TypeVar
+from __future__ import annotations
+
+from typing import TypedDict, Literal, TypeVar
 
 
 T = TypeVar("T")
@@ -30,25 +32,25 @@ UsernameStatus = Literal[
 class Username(TypedDict):
     username: str
     status: UsernameStatus
-    value: Optional[float]
-    datetime: Optional[str]
-    is_resale: Optional[bool]
+    value: float | None
+    datetime: str | None
+    is_resale: bool | None
 
 
 class OwnershipHistoryElement(TypedDict):
-    ton_sell_price: float
+    ton_sell_price: float | None
     date: str
     buyer: str
 
 
 class BidHistoryElement(TypedDict):
-    ton_price: float
+    ton_price: float | None
     date: str
     from_: str
 
 
 class LatestOffersElement(TypedDict):
-    ton_offer: float
+    ton_offer: float | None
     date: str
     offered_by: str
 
@@ -56,6 +58,6 @@ class LatestOffersElement(TypedDict):
 class FullUsername(TypedDict):
     username: str
     status: UsernameStatus
-    ownership_history: List[OwnershipHistoryElement]
-    bid_history: List[BidHistoryElement]
-    latest_offers: List[LatestOffersElement]
+    ownership_history: list[OwnershipHistoryElement]
+    bid_history: list[BidHistoryElement]
+    latest_offers: list[LatestOffersElement]
