@@ -32,7 +32,8 @@ classifiers = [
 dependencies = [
   "aiohttp>=3.3.0",
   "requests",
-  "selectolax[cython]>=0.3.17"
+  "selectolax[cython]>=0.3.17",
+  "typing-extensions>=4.0.0 ; python_version < '3.11'"
 ]
 
 [project.optional-dependencies]
@@ -57,6 +58,6 @@ features = ["dev"]
 post-install-commands = ["pre-commit install"]
 
 [tool.unasyncd]
-files = { "fragment/_async/methods.py" = "fragment/_sync/methods.py" }
-add_replacements = { "AsyncMethods" = "SyncMethods" }
+files = { "fragment/_async/client.py" = "fragment/_sync/client.py" }
+add_replacements = { "AsyncClient" = "Client" }
 add_editors_note = true
