@@ -8,83 +8,105 @@ from .type_hints import Username, OwnershipHistoryElement, BidHistoryElement, La
 
 
 def parse_auctions(html: str) -> list[Username]:
-    parser = LexborHTMLParser(html)
-    result = []
-    for element in parser.body.css(".js-search-results .tm-row-selectable"):
-        try:
-            is_resale = None
-            username = element.css_first(".table-cell-value.tm-value").text()
+    try:
+        parser = LexborHTMLParser(html)
 
-            raw_status = element.css_first(".wide-last-col .table-cell-value.tm-value")
-            if raw_status is None:
+        container = parser.css_first(".js-search-results tbody")
+        if container is None:
+            return []
+
+        result = []
+
+        for row in container.css(".tm-row-selectable"):
+            username = row.css_first(".table-cell-value.tm-value").text(strip=True).lstrip("@")
+
+            wide_status_node = row.css_first(".wide-last-col .tm-value")
+            if wide_status_node is None:
                 status = "auction"
-                is_resale = element.css_matches(".table-cell-status-thin")
+                is_resale = bool(row.css_matches(".table-cell-status-thin"))
             else:
-                status = parse_status(raw_status.text())
+                status = parse_status(wide_status_node.text(strip=True))
+                is_resale = None
 
-            if status in ["available", "unavailable", "taken"]:
-                dt = None
-            else:
-                dt = element.css_first(".wide-last-col time").attributes.get("datetime")
+            time_node = row.css_first(".wide-last-col time")
+            dt = time_node.attributes.get("datetime") if time_node is not None else None
+
+            value = to_float(row.css_first(".thin-last-col .table-cell-value").text(strip=True))
 
             result.append(Username(
-                username=username[1:],
+                username=username,
                 status=status,
-                value=to_float(element.css_first(".thin-last-col .table-cell-value").text()),
+                value=value,
                 datetime=dt,
                 is_resale=is_resale
             ))
-        except Exception as e:
-            raise ParserError(element.html) from e
-    return result
+
+        return result
+    except Exception as e:
+        raise ParserError(parser.html) from e
 
 
 def parse_username_info(html: str) -> FullUsername:
-    parser = LexborHTMLParser(html)
+    try:
+        parser = LexborHTMLParser(html)
+        bid_history_elems = []
+        ownership_history_elems = []
+        latest_offers_elems = []
 
-    bid_history_elems = []
-    ownership_history_elems = []
-    latest_offers_elems = []
+        tm_sections = parser.css("main > section.tm-section.clearfix")
+        for tm_section in tm_sections:
+            header = tm_section.css_first(".tm-section-header-text")
+            if header is None:
+                continue
+            header_text = header.text(strip=True).lower()
 
-    tm_sections = parser.css("main > section.tm-section.clearfix")
-    for tm_section in tm_sections:
-        header = tm_section.css_first(".tm-section-header-text")
-        if header is None:
-            continue
-        header_text = header.text(strip=True).lower()
+            table_rows = tm_section.css("table > tbody tr")
 
-        if header_text == "bid history":
-            table_elems = tm_section.css("table > tbody tr")
-            for table_elem in table_elems:
-                table_cells = table_elem.css(".table-cell")
-                bid_history_elems.append(BidHistoryElement(
-                    ton_price=to_float(table_cells[0].text(strip=True)),
-                    date=table_cells[1].css_first(".wide-only").text(strip=True),
-                    from_=table_cells[2].css_first(".tm-wallet").attributes["href"].removeprefix("https://tonviewer.com/")
-                ))
-        elif header_text == "ownership history":
-            table_elems = tm_section.css("table > tbody tr")
-            for table_elem in table_elems:
-                table_cells = table_elem.css(".table-cell")
-                ownership_history_elems.append(OwnershipHistoryElement(
-                    ton_sell_price=to_float(table_cells[0].text(strip=True)),
-                    date=table_cells[1].css_first(".wide-only").text(strip=True),
-                    buyer=table_cells[2].css_first(".tm-wallet").attributes["href"].removeprefix("https://tonviewer.com/")
-                ))
-        elif header_text == "latest offers":
-            table_elems = tm_section.css("table > tbody tr")
-            for table_elem in table_elems:
-                table_cells = table_elem.css(".table-cell")
-                latest_offers_elems.append(LatestOffersElement(
-                    ton_offer=to_float(table_cells[0].text(strip=True)),
-                    date=table_cells[1].css_first(".wide-only").text(strip=True),
-                    offered_by=table_cells[2].css_first(".tm-wallet").attributes["href"].removeprefix("https://tonviewer.com/")
-                ))
+            for row in table_rows:
+                table_cells = row.css(".table-cell")
 
-    return FullUsername(
-        username=parser.css_first(".tm-section-auction-info :first-child > dd").text(strip=True)[1:],
-        status=parse_status(parser.css_first(".tm-section-header-status").text()),
-        ownership_history=ownership_history_elems,
-        bid_history=bid_history_elems,
-        latest_offers=latest_offers_elems
-    )
+                price = to_float(table_cells[0].text(strip=True))
+
+                date = table_cells[1].css_first(".wide-only").text(strip=True)
+
+                wallet_node = table_cells[2].css_first(".tm-wallet")
+                wallet = wallet_node.attributes.get("href", "").removeprefix(
+                    "https://tonviewer.com/")
+
+                if header_text == "bid history":
+                    bid_history_elems.append(
+                        BidHistoryElement(
+                            ton_price=price,
+                            date=date,
+                            from_=wallet,
+                        )
+                    )
+                elif header_text == "ownership history":
+                    ownership_history_elems.append(
+                        OwnershipHistoryElement(
+                            ton_sell_price=price,
+                            date=date,
+                            buyer=wallet,
+                        )
+                    )
+                elif header_text == "latest offers":
+                    latest_offers_elems.append(
+                        LatestOffersElement(
+                            ton_offer=price,
+                            date=date,
+                            offered_by=wallet,
+                        )
+                    )
+
+        username_raw = parser.css_first(".tm-section-auction-info :first-child > dd").text(strip=True)
+        status_raw = parser.css_first(".tm-section-header-status").text(strip=True)
+
+        return FullUsername(
+            username=username_raw.lstrip("@"),
+            status=parse_status(status_raw),
+            ownership_history=ownership_history_elems,
+            bid_history=bid_history_elems,
+            latest_offers=latest_offers_elems
+        )
+    except Exception as e:
+        raise ParserError(parser.html) from e
