@@ -32,7 +32,7 @@ classifiers = [
 dependencies = [
   "aiohttp>=3.3.0",
   "requests",
-  "selectolax[cython]>=0.3.17",
+  "selectolax[cython]>=0.3.17,!=0.4.8",
   "typing-extensions>=4.0.0 ; python_version < '3.11'"
 ]
 
