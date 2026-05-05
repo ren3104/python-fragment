@@ -5,7 +5,7 @@
   <a href="https://pypi.org/project/python-fragment"><img src="https://img.shields.io/pypi/pyversions/python-fragment.svg" alt="Supported python versions"></a>
 </p>
 
-An unofficial Python library for interacting with [Fragment](https://fragment.com). The library scrapes Fragment's HTML pages and exposes a clean, fully typed interface.
+An unofficial Python library for interacting with [Fragment](https://fragment.com) (Python 3.9+). The library scrapes Fragment's HTML pages and exposes a clean, fully typed interface.
 
 ## Features
 - Both **synchronous** and **asynchronous** clients
@@ -17,8 +17,6 @@ An unofficial Python library for interacting with [Fragment](https://fragment.co
 ```shell
 pip install python-fragment
 ```
-
-**Requirements:** Python 3.9+
 
 ## Quick Start
 
