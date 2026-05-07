@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from aiohttp import ClientSession, ClientTimeout
+from aiohttp.client import sentinel
 from aiohttp.client_exceptions import ClientConnectionError
 
 import asyncio
@@ -21,19 +22,16 @@ from ..errors import FragmentHTTPError
 
 
 class BaseClient(AbstractClient):
-    __slots__ = (
-        "_session",
-        "_request_timeout"
-    )
+    __slots__ = ("_session",)
 
     def __init__(
         self,
-        base_url: str | None = None
+        base_url: str | None = None,
+        proxy: str | None = None
     ) -> None:
-        super().__init__(base_url)
+        super().__init__(base_url, proxy)
 
         self._session: ClientSession | None = None
-        self._request_timeout = ClientTimeout(total=self.DEFAULT_TIMEOUT)
 
     @property
     def closed(self) -> bool:
@@ -41,6 +39,7 @@ class BaseClient(AbstractClient):
 
     def _create_session(self) -> ClientSession:
         return ClientSession(
+            timeout=ClientTimeout(total=self.DEFAULT_TIMEOUT),
             headers={
                 "User-Agent": "python-fragment-" + __version__
             }
@@ -49,14 +48,22 @@ class BaseClient(AbstractClient):
     async def _request(
         self,
         path: str,
+        params: dict[str, Any] | None = None,
         method: str = "GET",
+        timeout: int | None = None,
         max_retries: int | None = None,
-        **request_kwargs: Any
+        proxy: str | None = None
     ) -> Any:
         if max_retries is None:
             max_retries = self.MAX_RETRIES
 
-        request_kwargs.setdefault("timeout", self._request_timeout)
+        if timeout is None:
+            real_timeout = sentinel
+        else:
+            real_timeout = ClientTimeout(total=timeout)
+
+        if proxy is None:
+            proxy = self._proxy
 
         for attempt in range(max_retries + 1):
             if self._session is None:
@@ -68,7 +75,9 @@ class BaseClient(AbstractClient):
                 async with self._session.request(
                     method=method,
                     url=self.base_url + path,
-                    **request_kwargs
+                    params=params,
+                    timeout=real_timeout,
+                    proxy=proxy
                 ) as response:
                     if not response.ok:
                         raise FragmentHTTPError(

@@ -21,15 +21,14 @@ from ..errors import FragmentHTTPError
 
 
 class BaseClient(AbstractClient):
-    __slots__ = (
-        "_session",
-    )
+    __slots__ = ("_session",)
 
     def __init__(
         self,
-        base_url: str | None = None
+        base_url: str | None = None,
+        proxy: str | None = None
     ) -> None:
-        super().__init__(base_url)
+        super().__init__(base_url, proxy)
 
         self._session: Session | None = None
 
@@ -45,9 +44,11 @@ class BaseClient(AbstractClient):
     def _request(
         self,
         path: str,
+        params: dict[str, Any] | None = None,
         method: str = "GET",
+        timeout: int | None = None,
         max_retries: int | None = None,
-        **request_kwargs: Any
+        proxy: str | None = None
     ) -> Any:
         if self._session is None:
             raise RuntimeError("HTTP session is not initialized. Use the context manager")
@@ -55,14 +56,25 @@ class BaseClient(AbstractClient):
         if max_retries is None:
             max_retries = self.MAX_RETRIES
 
-        request_kwargs.setdefault("timeout", self.DEFAULT_TIMEOUT)
+        if timeout is None:
+            timeout = self.DEFAULT_TIMEOUT
+
+        if proxy is None:
+            if self._proxy is None:
+                real_proxy = None
+            else:
+                real_proxy = {"http": self._proxy, "https": self._proxy}
+        else:
+            real_proxy = {"http": proxy, "https": proxy}
 
         for attempt in range(max_retries + 1):
             try:
                 response = self._session.request(
                     method=method,
                     url=self.base_url + path,
-                    **request_kwargs
+                    params=params,
+                    timeout=timeout,
+                    proxies=real_proxy
                 )
                 if not response.ok:
                     raise FragmentHTTPError(
