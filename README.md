@@ -59,34 +59,39 @@ with fragment.Client() as client:
 ```
 
 ## Proxy Usage
-Both clients forward `**request_kwargs` directly to the underlying HTTP library, so proxies are configured per-call.
 
-### Async client (`aiohttp`)
-Pass a single proxy URL string via the `proxy` keyword argument:
+A proxy can be set for the entire client session or overridden per individual request. The interface is identical for both `AsyncClient` and `Client`.
+
+### Client-level proxy
 
 ```python
-import asyncio
 import fragment
 
 PROXY = "http://{user}:{password}@{host}:{port}"
 
-async def main():
-  async with fragment.AsyncClient() as client:
-    print(await client.username_info("crypto", proxy=PROXY))
+# Async
+async with fragment.AsyncClient(proxy=PROXY) as client:
+  print(await client.username_info("crypto"))
 
-asyncio.run(main())
+# Sync
+with fragment.Client(proxy=PROXY) as client:
+  print(client.username_info("crypto"))
 ```
 
-### Sync client (`requests`)
-Pass a `proxies` dict that maps URL schemes to the proxy URL:
+### Per-request proxy
 
 ```python
 import fragment
 
 PROXY = "http://{user}:{password}@{host}:{port}"
 
+# Async
+async with fragment.AsyncClient() as client:
+  print(await client.username_info("crypto", proxy=PROXY))
+
+# Sync
 with fragment.Client() as client:
-  print(client.username_info("crypto", proxies={"http": PROXY, "https": PROXY}))
+  print(client.username_info("crypto", proxy=PROXY))
 ```
 
 ## Error Handling
