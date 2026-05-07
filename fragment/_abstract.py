@@ -23,7 +23,11 @@ class AbstractClient(ABC):
         base_url: str | None = None,
         proxy: str | None = None
     ) -> None:
-        self.base_url = self.DEFAULT_URL if base_url is None else base_url
+        self.base_url = (
+            self.DEFAULT_URL
+            if base_url is None else
+            base_url
+        ).rstrip("/")
         self._proxy = proxy
 
     @property

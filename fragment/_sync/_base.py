@@ -53,6 +53,8 @@ class BaseClient(AbstractClient):
         if self._session is None:
             raise RuntimeError("HTTP session is not initialized. Use the context manager")
 
+        path = path.lstrip("/")
+
         if max_retries is None:
             max_retries = self.MAX_RETRIES
 
@@ -71,7 +73,7 @@ class BaseClient(AbstractClient):
             try:
                 response = self._session.request(
                     method=method,
-                    url=self.base_url + path,
+                    url=f"{self.base_url}/{path}",
                     params=params,
                     timeout=timeout,
                     proxies=real_proxy

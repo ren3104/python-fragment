@@ -54,6 +54,8 @@ class BaseClient(AbstractClient):
         max_retries: int | None = None,
         proxy: str | None = None
     ) -> Any:
+        path = path.lstrip("/")
+
         if max_retries is None:
             max_retries = self.MAX_RETRIES
 
@@ -74,7 +76,7 @@ class BaseClient(AbstractClient):
             try:
                 async with self._session.request(
                     method=method,
-                    url=self.base_url + path,
+                    url=f"{self.base_url}/{path}",
                     params=params,
                     timeout=real_timeout,
                     proxy=proxy
