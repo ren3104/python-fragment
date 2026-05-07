@@ -165,5 +165,8 @@ cython_debug/
 # MacOS
 .DS_Store
 
+# unasyncd
+.unasyncd_cache/
+
 # My
 test.py
