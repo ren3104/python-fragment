@@ -10,7 +10,9 @@ if TYPE_CHECKING:
 class AbstractClient(ABC):
     __slots__ = (
         "base_url",
-        "_proxy"
+        "_proxy",
+        "_session",
+        "_api_hash"
     )
 
     DEFAULT_URL = "https://fragment.com"
@@ -29,6 +31,8 @@ class AbstractClient(ABC):
             base_url
         ).rstrip("/")
         self._proxy = proxy
+        self._session: Any | None = None
+        self._api_hash: str = ""
 
     @property
     @abstractmethod

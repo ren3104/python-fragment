@@ -2,9 +2,27 @@ from __future__ import annotations
 
 from selectolax.lexbor import LexborHTMLParser
 
+import re, json
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
+
 from .helper import to_float, parse_status
 from .errors import ParserError
 from .type_hints import Username, OwnershipHistoryElement, BidHistoryElement, LatestOffersElement, FullUsername
+
+
+def parse_init_data(html: str) -> dict[str, Any]:
+    match = re.search(r"ajInit\((\{.*?})\)", html, re.DOTALL)
+    if match is None:
+        raise RuntimeError("Init data not found in HTML")
+
+    raw_data = match.group(1)
+    try:
+        return json.loads(raw_data)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f"Failed to parse init data: {e}") from e
 
 
 def parse_auctions(html: str) -> list[Username]:

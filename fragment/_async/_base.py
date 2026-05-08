@@ -22,16 +22,7 @@ from ..errors import FragmentHTTPError
 
 
 class BaseClient(AbstractClient):
-    __slots__ = ("_session",)
-
-    def __init__(
-        self,
-        base_url: str | None = None,
-        proxy: str | None = None
-    ) -> None:
-        super().__init__(base_url, proxy)
-
-        self._session: ClientSession | None = None
+    _session: ClientSession | None
 
     @property
     def closed(self) -> bool:
