@@ -14,8 +14,10 @@ authors = [
 ]
 keywords = [
     "fragment",
+    "fragment-api",
+    "telegram",
     "ton",
-    "telegram"
+    "toncoin"
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
